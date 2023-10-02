@@ -4160,19 +4160,13 @@ std::string Assembly::CheckOMETerminal(MolecularModeling::Atom* target, Molecula
     MolecularModeling::Atom* C1               = NULL;
     MolecularModeling::Atom* C2               = NULL;
     MolecularModeling::AtomVector o_neighbors = target->GetNode()->GetNodeNeighbors();
-    for (MolecularModeling::AtomVector::iterator it = o_neighbors.begin(); it != o_neighbors.end(); it++)
-    {
-        MolecularModeling::Atom* o_neighbor = (*it);
+	
+	if (o_neighbors.size() != 2){
+		return "";
+	}
+	C1 = o_neighbors[0];
+	C2 = o_neighbors[1];
 
-        if (o_neighbor->GetName().at(0) == 'C' && C1 == NULL && C2 == NULL)
-        {
-            C1 = o_neighbor;
-        }
-        else if (o_neighbor->GetName().at(0) == 'C' && C1 != NULL && C2 == NULL)
-        {
-            C2 = o_neighbor;
-        }
-    }
     std::stringstream temp;
     if (C1 != NULL)
     {
@@ -4184,17 +4178,19 @@ std::string Assembly::CheckOMETerminal(MolecularModeling::Atom* target, Molecula
             MolecularModeling::Atom* c1_neighbor = (*it);
             if (c1_neighbor->GetId().compare(target->GetId()) != 0)
             {
-                temp << c1_neighbor->GetName().at(0);
+                //temp << c1_neighbor->GetName().at(0);
+                temp << c1_neighbor->GetElementSymbol();
                 atoms_1.push_back(c1_neighbor);
             }
         }
+    	if(temp.str().compare("O-C") == 0 || temp.str().compare("O-CHHH") == 0)
+    	{
+        	terminal_atoms = atoms_1;
+        	return "OME";
+    	}
     }
-    if (temp.str().compare("O-C") == 0 || temp.str().compare("O-CHHH") == 0)
-    {
-        terminal_atoms = atoms_1;
-        return "OME";
-    }
-    if (C2 != NULL)
+
+    if(C2 != NULL)
     {
         pattern << "-C";
         atoms_2.push_back(C2);
@@ -4204,7 +4200,8 @@ std::string Assembly::CheckOMETerminal(MolecularModeling::Atom* target, Molecula
             MolecularModeling::Atom* c2_neighbor = (*it);
             if (c2_neighbor->GetId().compare(target->GetId()) != 0)
             {
-                pattern << c2_neighbor->GetName().at(0);
+                //pattern << c2_neighbor->GetName().at(0);
+                pattern << c2_neighbor->GetElementSymbol();
                 atoms_2.push_back(c2_neighbor);
             }
         }
@@ -4230,13 +4227,16 @@ std::string Assembly::CheckROHTerminal(MolecularModeling::Atom* target, Molecula
     else if (o_neighbors.size() > 1 && o_neighbors.size() == 2)
     // ROH oxygen has up to two neighbors. It's safer to limit number of neighbors to two.
     {
-        if ((o_neighbors.at(0)->GetName().at(0) == 'H' && o_neighbors.at(1)->GetName().at(0) != 'H'))
+		std::string element1 = o_neighbors.at(0)->GetElementSymbol();
+		std::string element2 = o_neighbors.at(1)->GetElementSymbol();
+
+        if(element1 == "H" && element2 != "H")
         {
             terminal_atoms.push_back(target);
             terminal_atoms.push_back(o_neighbors.at(0));
             return "ROH";
         }
-        else if (o_neighbors.at(1)->GetName().at(0) == 'H' && o_neighbors.at(0)->GetName().at(0) != 'H')
+        else if(element2 == "H" && element1 != "H")
         {
             terminal_atoms.push_back(target);
             terminal_atoms.push_back(o_neighbors.at(1));
@@ -4261,12 +4261,11 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
     for (MolecularModeling::AtomVector::iterator it = o_neighbors.begin(); it != o_neighbors.end(); it++)
     {
         MolecularModeling::Atom* o_neighbor = (*it);
-        if (o_neighbor->GetName().at(0) == 'C' && C1 == NULL && C2 == NULL)
-        {
+		std::string element = o_neighbor->GetElementSymbol();
+
+        if(element == "C" && C1 == NULL && C2 == NULL)
             C1 = o_neighbor;
-        }
-        else if (o_neighbor->GetName().at(0) == 'C' && C1 != NULL && C2 == NULL)
-        {
+        else if(element == "C" && C1 != NULL && C2 == NULL)
             C2 = o_neighbor;
         }
     }
@@ -4283,19 +4282,13 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
         for (MolecularModeling::AtomVector::iterator it = c1_neighbors.begin(); it != c1_neighbors.end(); it++)
         {
             MolecularModeling::Atom* c1_neighbor = (*it);
-            if (c1_neighbor->GetId().compare(target->GetId()) != 0 && c1_neighbor->GetName().at(0) == 'C' &&
-                C1C1 == NULL)
-            {
+			std::string neighbor_element = c1_neighbor->GetElementSymbol();
+
+            if(c1_neighbor->GetId().compare(target->GetId()) != 0 && neighbor_element == "C" && C1C1 == NULL)
                 C1C1 = c1_neighbor;
-            }
-            else if (c1_neighbor->GetId().compare(target->GetId()) != 0 && c1_neighbor->GetName().at(0) == 'C' &&
-                     C1C1 != NULL && C1C2 == NULL)
-            {
+            else if(c1_neighbor->GetId().compare(target->GetId()) != 0 && neighbor_element == "C" && C1C1 != NULL && C1C2 == NULL)
                 C1C2 = c1_neighbor;
-            }
-            else if (c1_neighbor->GetId().compare(target->GetId()) != 0 && c1_neighbor->GetName().at(0) == 'C' &&
-                     C1C1 != NULL && C1C2 != NULL && C1C3 == NULL)
-            {
+            else if(c1_neighbor->GetId().compare(target->GetId()) != 0 && neighbor_element == "C" && C1C1 != NULL && C1C2 != NULL && C1C3 == NULL)
                 C1C3 = c1_neighbor;
             }
         }
@@ -4307,9 +4300,12 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
             for (MolecularModeling::AtomVector::iterator it = c1c1_neighbors.begin(); it != c1c1_neighbors.end(); it++)
             {
                 MolecularModeling::Atom* c1c1_neighbor = (*it);
-                if (c1c1_neighbor->GetId().compare(C1->GetId()) != 0)
+				std::string c1c1_neighbor_element = c1c1_neighbor->GetElementSymbol();
+
+                if(c1c1_neighbor->GetId().compare(C1->GetId()) != 0)
                 {
-                    temp << c1c1_neighbor->GetName().at(0);
+                    //temp << c1c1_neighbor->GetName().at(0);
+                    temp << c1c1_neighbor_element;
                     atoms_1.push_back(c1c1_neighbor);
                 }
             }
@@ -4319,21 +4315,27 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
             for (MolecularModeling::AtomVector::iterator it = c1c2_neighbors.begin(); it != c1c2_neighbors.end(); it++)
             {
                 MolecularModeling::Atom* c1c2_neighbor = (*it);
-                if (c1c2_neighbor->GetId().compare(C1->GetId()) != 0)
+				std::string c1c2_neighbor_element = c1c2_neighbor->GetElementSymbol();
+
+                if(c1c2_neighbor->GetId().compare(C1->GetId()) != 0)
                 {
-                    temp << c1c2_neighbor->GetName().at(0);
+                    //temp << c1c2_neighbor->GetName().at(0);
+                    temp << c1c2_neighbor_element;
                     atoms_1.push_back(c1c2_neighbor);
                 }
             }
             temp << "C";
             atoms_1.push_back(C1C3);
             MolecularModeling::AtomVector c1c3_neighbors = C1C3->GetNode()->GetNodeNeighbors();
-            for (MolecularModeling::AtomVector::iterator it = c1c3_neighbors.begin(); it != c1c3_neighbors.end(); it++)
+
+            for(MolecularModeling::AtomVector::iterator it = c1c3_neighbors.begin(); it != c1c3_neighbors.end(); it++)
             {
                 MolecularModeling::Atom* c1c3_neighbor = (*it);
-                if (c1c3_neighbor->GetId().compare(C1->GetId()) != 0)
+				std::string c1c3_neighbor_element = c1c3_neighbor->GetElementSymbol();			
+
+                if(c1c3_neighbor->GetId().compare(C1->GetId()) != 0)
                 {
-                    temp << c1c3_neighbor->GetName().at(0);
+                    temp << c1c3_neighbor_element;
                     atoms_1.push_back(c1c3_neighbor);
                 }
             }
@@ -4356,19 +4358,13 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
         for (MolecularModeling::AtomVector::iterator it = c2_neighbors.begin(); it != c2_neighbors.end(); it++)
         {
             MolecularModeling::Atom* c2_neighbor = (*it);
-            if (c2_neighbor->GetId().compare(target->GetId()) != 0 && c2_neighbor->GetName().at(0) == 'C' &&
-                C2C1 == NULL)
-            {
+			std::string c2_neighbor_element = c2_neighbor->GetElementSymbol(); 
+
+            if(c2_neighbor->GetId().compare(target->GetId()) != 0 && c2_neighbor_element == "C" && C2C1 == NULL)
                 C2C1 = c2_neighbor;
-            }
-            else if (c2_neighbor->GetId().compare(target->GetId()) != 0 && c2_neighbor->GetName().at(0) == 'C' &&
-                     C2C1 != NULL && C2C2 == NULL)
-            {
+            else if(c2_neighbor->GetId().compare(target->GetId()) != 0 && c2_neighbor_element == "C" && C2C1 != NULL && C2C2 == NULL)
                 C2C2 = c2_neighbor;
-            }
-            else if (c2_neighbor->GetId().compare(target->GetId()) != 0 && c2_neighbor->GetName().at(0) == 'C' &&
-                     C2C1 != NULL && C2C2 != NULL && C2C3 == NULL)
-            {
+            else if(c2_neighbor->GetId().compare(target->GetId()) != 0 && c2_neighbor_element == "C" && C2C1 != NULL && C2C2 != NULL && C2C3 == NULL)
                 C2C3 = c2_neighbor;
             }
         }
@@ -4382,7 +4378,8 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
                 MolecularModeling::Atom* c2c1_neighbor = (*it);
                 if (c2c1_neighbor->GetId().compare(C2->GetId()) != 0)
                 {
-                    pattern << c2c1_neighbor->GetName().at(0);
+                    //pattern << c2c1_neighbor->GetName().at(0);
+                    pattern << c2c1_neighbor->GetElementSymbol();
                     atoms_2.push_back(c2c1_neighbor);
                 }
             }
@@ -4394,7 +4391,8 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
                 MolecularModeling::Atom* c2c2_neighbor = (*it);
                 if (c2c2_neighbor->GetId().compare(C2->GetId()) != 0)
                 {
-                    pattern << c2c2_neighbor->GetName().at(0);
+                    //pattern << c2c2_neighbor->GetName().at(0);
+                    pattern << c2c2_neighbor->GetElementSymbol();
                     atoms_2.push_back(c2c2_neighbor);
                 }
             }
@@ -4406,7 +4404,8 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
                 MolecularModeling::Atom* c2c3_neighbor = (*it);
                 if (c2c3_neighbor->GetId().compare(C2->GetId()) != 0)
                 {
-                    pattern << c2c3_neighbor->GetName().at(0);
+                    //pattern << c2c3_neighbor->GetName().at(0);
+                    pattern << c2c3_neighbor->GetElementSymbol();
                     atoms_2.push_back(c2c3_neighbor);
                 }
             }
