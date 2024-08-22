@@ -4267,7 +4267,7 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
             C1 = o_neighbor;
         else if(element == "C" && C1 != NULL && C2 == NULL)
             C2 = o_neighbor;
-        }
+        
     }
     std::stringstream temp;
     if (C1 != NULL)
@@ -4290,7 +4290,6 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
                 C1C2 = c1_neighbor;
             else if(c1_neighbor->GetId().compare(target->GetId()) != 0 && neighbor_element == "C" && C1C1 != NULL && C1C2 != NULL && C1C3 == NULL)
                 C1C3 = c1_neighbor;
-            }
         }
         if (C1C1 != NULL && C1C2 != NULL && C1C3 != NULL)
         {
@@ -4366,7 +4365,6 @@ std::string Assembly::CheckTBTTerminal(MolecularModeling::Atom* target, Molecula
                 C2C2 = c2_neighbor;
             else if(c2_neighbor->GetId().compare(target->GetId()) != 0 && c2_neighbor_element == "C" && C2C1 != NULL && C2C2 != NULL && C2C3 == NULL)
                 C2C3 = c2_neighbor;
-            }
         }
         if (C2C1 != NULL && C2C2 != NULL && C2C3 != NULL)
         {
