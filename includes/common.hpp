@@ -109,13 +109,14 @@ namespace gmml
         "NHID", "NHIE", "CNALA", "CNASP", "CASN", "CARG", "CGLY", "CGLU", "CGLN", "CPRO", "CHIS", "CCYS", "CVAL",
         "CLEU", "CTHR", "CSER",  "CLYS",  "CMET", "CTYR", "CTRP", "CPHE", "CSEC", "CILE", "CCYX", "CHID", "CHIE"};
     // ToDo change everything to use the vector version above
-    const std::string PROTEINS[] = {
-        "ALA",  "ASP",  "ASN",   "ARG",   "GLY",  "GLU",  "GLN",  "PRO",  "HIS",  "HIP",  "CYS",  "VAL",  "LEU",
-        "THR",  "SER",  "LYS",   "MET",   "MSE",  "TYR",  "TRP",  "PHE",  "SEC",  "ILE",  "CYX",  "HID",  "HIE",
-        "NLN",  "OLY",  "OLS",   "OLT",   "NALA", "NASP", "NASN", "NARG", "NGLY", "NGLU", "NGLN", "NPRO", "NHIS",
-        "NCYS", "NVAL", "NLEU",  "NTHR",  "NSER", "NLYS", "NMET", "NTYR", "NTRP", "NPHE", "NSEC", "NILE", "NCYX",
-        "NHID", "NHIE", "CNALA", "CNASP", "CASN", "CARG", "CGLY", "CGLU", "CGLN", "CPRO", "CHIS", "CCYS", "CVAL",
-        "CLEU", "CTHR", "CSER",  "CLYS",  "CMET", "CTYR", "CTRP", "CPHE", "CSEC", "CILE", "CCYX", "CHID", "CHIE"};
+    const std::string PROTEINS[] = {"ALA",  "ASP",  "ASN",  "ARG",  "GLY",  "GLU",  "GLN",   "PRO",   "HIS",  "HIP",
+                                    "CYS",  "VAL",  "LEU",  "THR",  "SER",  "LYS",  "MET",   "MSE",   "TYR",  "TRP",
+                                    "PHE",  "SEC",  "ILE",  "CYX",  "HID",  "HIE",  "NLN",   "OLY",   "OLS",  "OLT",
+                                    "ACE",  "NME",  "NALA", "NASP", "NASN", "NARG", "NGLY",  "NGLU",  "NGLN", "NPRO",
+                                    "NHIS", "NCYS", "NVAL", "NLEU", "NTHR", "NSER", "NLYS",  "NMET",  "NTYR", "NTRP",
+                                    "NPHE", "NSEC", "NILE", "NCYX", "NHID", "NHIE", "CNALA", "CNASP", "CASN", "CARG",
+                                    "CGLY", "CGLU", "CGLN", "CPRO", "CHIS", "CCYS", "CVAL",  "CLEU",  "CTHR", "CSER",
+                                    "CLYS", "CMET", "CTYR", "CTRP", "CPHE", "CSEC", "CILE",  "CCYX",  "CHID", "CHIE"};
 
     const int PROTEINSSIZE = (sizeof(PROTEINS) / sizeof(PROTEINS[0]));
 
