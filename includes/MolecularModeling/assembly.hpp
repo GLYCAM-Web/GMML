@@ -1197,9 +1197,18 @@ namespace MolecularModeling
         void MatchPdbAtoms2Glycam(std::map<Glycan::Oligosaccharide*, ResidueVector>& oligo_residue_map,
                                   std::string prep_file,
                                   std::map<Glycan::Oligosaccharide*, Pdb2glycamMatchingTracker*>& match_tracker);
-        int RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& target_atoms, Atom* template_atoms,
+		//Avoid map ptr as key. Yao 20240826
+        /*int RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& target_atoms, Atom* template_atoms,
                                               std::map<Atom*, std::string>& target_atom_label_map,
                                               std::map<Atom*, std::string>& template_atom_label_map,
+                                              std::vector<std::map<Atom*, Atom*>>& target_template_vertex_match,
+                                              std::vector<std::map<Atom*, Atom*>>& template_target_vertex_match,
+                                              std::vector<Atom*>& insertion_order, Pdb2glycamMatchingTracker* tracker,
+                                              int depth);*/
+		int RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& target_atoms, int target_atom_index, 
+											  Atom* template_atom, AtomVector& template_atoms, int template_atom_index, 
+                                              std::vector<std::string>& target_atom_label_map,
+                                              std::vector<std::string>& template_atom_label_map,
                                               std::vector<std::map<Atom*, Atom*>>& target_template_vertex_match,
                                               std::vector<std::map<Atom*, Atom*>>& template_target_vertex_match,
                                               std::vector<Atom*>& insertion_order, Pdb2glycamMatchingTracker* tracker,
@@ -1208,12 +1217,19 @@ namespace MolecularModeling
                                    std::vector<std::map<Atom*, Atom*>>& target_template_vertex_match,
                                    std::vector<std::map<Atom*, Atom*>>& template_target_vertex_match,
                                    Pdb2glycamMatchingTracker* tracker);
-        bool AllAtomEdgesMatch(Atom* target_atom, Atom* template_atom,
+        /*bool AllAtomEdgesMatch(Atom* target_atom, Atom* template_atom,
                                std::map<Atom*, std::string>& target_atom_label_map,
-                               std::map<Atom*, std::string>& template_atom_label_map);
-        bool AtomVertexMatch(Atom* target_atom, Atom* template_atom,
+                               std::map<Atom*, std::string>& template_atom_label_map);*/
+        bool AllAtomEdgesMatch(Atom* target_atom, AtomVector& target_atoms, Atom* template_atom, AtomVector& template_atoms,
+                               std::vector<std::string>& target_atom_label_map,
+                               std::vector<std::string>& template_atom_label_map);
+        /*bool AtomVertexMatch(Atom* target_atom, Atom* template_atom,
                              std::map<Atom*, std::string>& target_atom_label_map,
-                             std::map<Atom*, std::string>& template_atom_label_map);
+                             std::map<Atom*, std::string>& template_atom_label_map);*/
+		bool AtomVertexMatch(int target_atom_index, int template_atom_index,
+                             std::vector<std::string>& target_atom_label_map,
+                             std::vector<std::string>& template_atom_label_map);
+		void Reorder06TreeTempDeleteLater(CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree& unordered_tree, CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree& ordered_tree, int current_tree_index, std::vector<int>& visited);
         bool IfMatchScenarioAlreadyExists(std::map<Atom*, Atom*>& target_template_vertex_match,
                                           Pdb2glycamMatchingTracker* tracker);
         void RemoveDownstreamMatches(Atom* target_atom,
