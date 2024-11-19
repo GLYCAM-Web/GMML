@@ -128,9 +128,9 @@ void Assembly::PutAglyconeInNewResidueAndRearrangeGlycanResidues(
         }
 
         AtomVector terminal_atoms = AtomVector();
-        std::string terminal = CheckTerminals(anomeric_o, terminal_atoms);
+        std::string terminal      = CheckTerminals(anomeric_o, terminal_atoms);
 
-        if(terminal.compare("") == 0)
+        if (terminal.compare("") == 0)
         {
             std::cerr << "Unknown aglycone detected.Aborting" << std::endl;
             throw;
@@ -182,24 +182,23 @@ void Assembly::PutAglyconeInNewResidueAndRearrangeGlycanResidues(
             this->RemoveResidue(oligo_residues[i]);
         }
 
-        std::string aglycone_name                         = condensed_sequence_glycam06_residue_tree.at(0)->GetName();
-        MolecularModeling::Residue* residue_with_aglycone = oligo_residues[0]; //Strange that the 1st residue is not always the aglycone
+        std::string aglycone_name = condensed_sequence_glycam06_residue_tree.at(0)->GetName();
+        MolecularModeling::Residue* residue_with_aglycone =
+            oligo_residues[0]; // Strange that the 1st residue is not always the aglycone
         /*MolecularModeling::Residue* residue_with_aglycone = NULL;
-		for (unsigned int i = 0; i < oligo_residues.size(); i++)
-		{
-			MolecularModeling::Residue* oligo_res = oligo_residues[i];
-			if (oligo_res->GetName() == aglycone_name){
-				residue_with_aglycone = oligo_res;
-				break;
-			}
-		}
+                for (unsigned int i = 0; i < oligo_residues.size(); i++)
+                {
+                        MolecularModeling::Residue* oligo_res = oligo_residues[i];
+                        if (oligo_res->GetName() == aglycone_name){
+                                residue_with_aglycone = oligo_res;
+                                break;
+                        }
+                }
 
-		if (residue_with_aglycone == NULL){
-			std::cout << "Error, aglycone residue with name " << aglycone_name << " cannot be detected in this oligsaccharide." << std::endl;
-			std::exit(1);
-		}*/
-
-        MolecularModeling::Residue* new_terminal_residue  = NULL;
+                if (residue_with_aglycone == NULL){
+                        std::cout << "Error, aglycone residue with name " << aglycone_name << " cannot be detected in
+           this oligsaccharide." << std::endl; std::exit(1);
+                }*/
 
         MolecularModeling::Residue* new_terminal_residue = NULL;
 
@@ -208,8 +207,8 @@ void Assembly::PutAglyconeInNewResidueAndRearrangeGlycanResidues(
                                        // be in a new glycam residue, for example, ROH.
         {
             gmml::log(__LINE__, __FILE__, gmml::INF, "First sugar residue is: " + residue_with_aglycone->GetId());
-            new_terminal_residue = new Residue(this,aglycone_name);
-			new_terminal_residue->SetName(aglycone_name);
+            new_terminal_residue = new Residue(this, aglycone_name);
+            new_terminal_residue->SetName(aglycone_name);
 
             oligo_residue_map[oligo].push_back(new_terminal_residue);
 
@@ -221,7 +220,7 @@ void Assembly::PutAglyconeInNewResidueAndRearrangeGlycanResidues(
             else
             {
                 ResidueVector::iterator preceding_residue_it =
-                std::find(this->residues_.begin(), this->residues_.end(), preceding_residue);
+                    std::find(this->residues_.begin(), this->residues_.end(), preceding_residue);
                 ResidueVector::iterator insertion_location = preceding_residue_it + 1;
                 this->residues_.insert(insertion_location, new_terminal_residue);
             }
@@ -283,29 +282,40 @@ void Assembly::PutAglyconeInNewResidueAndRearrangeGlycanResidues(
     return;
 }
 
-void Assembly::Reorder06TreeTempDeleteLater(CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree& unordered_tree, CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree& ordered_tree, int current_tree_index, std::vector<int>& visited){
-	CondensedSequenceSpace::CondensedSequenceGlycam06Residue* g06_residue_current = unordered_tree[current_tree_index];	
-	ordered_tree.push_back(g06_residue_current);
-	visited.push_back(current_tree_index);
-	std::map<int, int> sorted_children;
+void Assembly::Reorder06TreeTempDeleteLater(
+    CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree& unordered_tree,
+    CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree& ordered_tree,
+    int current_tree_index, std::vector<int>& visited)
+{
+    CondensedSequenceSpace::CondensedSequenceGlycam06Residue* g06_residue_current = unordered_tree[current_tree_index];
+    ordered_tree.push_back(g06_residue_current);
+    visited.push_back(current_tree_index);
+    std::map<int, int> sorted_children;
 
-    for (unsigned int i = 0; i < unordered_tree.size(); i++){
-    	CondensedSequenceSpace::CondensedSequenceGlycam06Residue* g06_residue = unordered_tree[i];
-        int parent_index = g06_residue->GetParentId();
+    for (unsigned int i = 0; i < unordered_tree.size(); i++)
+    {
+        CondensedSequenceSpace::CondensedSequenceGlycam06Residue* g06_residue = unordered_tree[i];
+        int parent_index                                                      = g06_residue->GetParentId();
 
-        if (parent_index == current_tree_index){
-        	std::string parent_oxygen_name = g06_residue->GetParentOxygen();
-            int po_index = (parent_oxygen_name.length() <=1) ? 0 : std::stoi(parent_oxygen_name.substr(1));
+        if (parent_index == current_tree_index)
+        {
+            std::string parent_oxygen_name = g06_residue->GetParentOxygen();
+            int po_index = (parent_oxygen_name.length() <= 1) ? 0 : std::stoi(parent_oxygen_name.substr(1));
             sorted_children[po_index] = i;
-            //This assumes that atom name consists of only 1 character as element and the rest are numbers. If not this will break.
+            // This assumes that atom name consists of only 1 character as element and the rest are numbers. If not this
+            // will break.
         }
     }
 
-	for (std::map<int, int>::iterator mapit = sorted_children.begin(); mapit != sorted_children.end(); mapit++){
-		int next_child_index = mapit->second;
-		if (std::find(visited.begin(), visited.end(), next_child_index) != visited.end()) continue;
-		this->Reorder06TreeTempDeleteLater(unordered_tree, ordered_tree, next_child_index, visited);
-	}
+    for (std::map<int, int>::iterator mapit = sorted_children.begin(); mapit != sorted_children.end(); mapit++)
+    {
+        int next_child_index = mapit->second;
+        if (std::find(visited.begin(), visited.end(), next_child_index) != visited.end())
+        {
+            continue;
+        }
+        this->Reorder06TreeTempDeleteLater(unordered_tree, ordered_tree, next_child_index, visited);
+    }
 }
 
 gmml::GlycamResidueNamingMap
@@ -338,7 +348,8 @@ Assembly::ExtractResidueGlycamNamingMap(std::vector<Glycan::Oligosaccharide*> ol
             new CondensedSequenceSpace::CondensedSequence(oligo_name);
         // Gets the three letter code of all carbohydrates involved in current oligosaccharide
         CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree
-            condensed_sequence_glycam06_residue_tree_unordered = condensed_sequence->GetCondensedSequenceGlycam06ResidueTree();
+            condensed_sequence_glycam06_residue_tree_unordered =
+                condensed_sequence->GetCondensedSequenceGlycam06ResidueTree();
 
         // If for some reason there are no residues in the condensed sequence, which really shouldn't happen. Terminate
         // the program as well.
@@ -348,12 +359,14 @@ Assembly::ExtractResidueGlycamNamingMap(std::vector<Glycan::Oligosaccharide*> ol
             throw;
         }
 
-		//Yao temporarily patch code 20240827. Reorder 06 tree based on bond index;
-		CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree condensed_sequence_glycam06_residue_tree;
-		//Add aglycone
-		condensed_sequence_glycam06_residue_tree.push_back(condensed_sequence_glycam06_residue_tree_unordered[0]);
-		std::vector<int> visited(1, 0);
-		this->Reorder06TreeTempDeleteLater(condensed_sequence_glycam06_residue_tree_unordered, condensed_sequence_glycam06_residue_tree, 1, visited);
+        // Yao temporarily patch code 20240827. Reorder 06 tree based on bond index;
+        CondensedSequenceSpace::CondensedSequence::CondensedSequenceGlycam06ResidueTree
+            condensed_sequence_glycam06_residue_tree;
+        // Add aglycone
+        condensed_sequence_glycam06_residue_tree.push_back(condensed_sequence_glycam06_residue_tree_unordered[0]);
+        std::vector<int> visited(1, 0);
+        this->Reorder06TreeTempDeleteLater(condensed_sequence_glycam06_residue_tree_unordered,
+                                           condensed_sequence_glycam06_residue_tree, 1, visited);
 
         // Detect anomeric carbon and oxygen to determine aglycone atoms, which in regular PDB file is put in the same
         // residue of the 1st sugar. For Glycam, this goes into a new residue, such as ROH.
@@ -384,11 +397,11 @@ Assembly::ExtractResidueGlycamNamingMap(std::vector<Glycan::Oligosaccharide*> ol
         }
 
         AtomVector terminal_atoms = AtomVector();
-        std::string terminal = CheckTerminals(anomeric_o, terminal_atoms);
-		
-		std::cout << "In extract map detected terminal name: " << terminal << std::endl;
-		
-        if(terminal.compare("") == 0)
+        std::string terminal      = CheckTerminals(anomeric_o, terminal_atoms);
+
+        std::cout << "In extract map detected terminal name: " << terminal << std::endl;
+
+        if (terminal.compare("") == 0)
         {
             std::cerr << "Unknown aglycone detected.Aborting" << std::endl;
             throw;
@@ -409,7 +422,6 @@ Assembly::ExtractResidueGlycamNamingMap(std::vector<Glycan::Oligosaccharide*> ol
 
         std::string aglycone_name = condensed_sequence_glycam06_residue_tree.at(0)->GetName();
         pdb_glycam_residue_map[terminal_atom_id].push_back(aglycone_name);
-
 
         oligo_id_map[oligo].push_back(terminal_atom_id);
 
@@ -690,7 +702,7 @@ void Assembly::MatchPdbAtoms2Glycam(std::map<Glycan::Oligosaccharide*, ResidueVe
 {
     int local_debug = -1;
     if (local_debug > 0)
-        //index++;
+    // index++;
     {
         gmml::log(__LINE__, __FILE__, gmml::INF, "Initializing prep file");
     }
@@ -720,8 +732,8 @@ void Assembly::MatchPdbAtoms2Glycam(std::map<Glycan::Oligosaccharide*, ResidueVe
         for (unsigned int i = 0; i < template_atoms.size(); i++)
         {}
 
-        //PdbFileSpace::PdbFile *outputPdbFile = template_assembly.BuildPdbFileStructureFromAssembly();
-        //outputPdbFile->Write("template.pdb");
+        // PdbFileSpace::PdbFile *outputPdbFile = template_assembly.BuildPdbFileStructureFromAssembly();
+        // outputPdbFile->Write("template.pdb");
 
         AtomVector target_atoms;
         for (ResidueVector::iterator resit = corresponding_residues.begin(); resit != corresponding_residues.end();
@@ -749,10 +761,11 @@ void Assembly::MatchPdbAtoms2Glycam(std::map<Glycan::Oligosaccharide*, ResidueVe
                 label += "Side_";
             }
 
-            label                       += atom->GetElementSymbol();
+            label += atom->GetElementSymbol();
             // label += atom->DetermineChirality();
             target_atom_label_map.push_back(label);
-            //std::cout << "Target atom ptr " << atom << " " << atom->GetResidue()->GetName() << "-" <<  atom->GetName() << " has label " << label << std::endl;
+            // std::cout << "Target atom ptr " << atom << " " << atom->GetResidue()->GetName() << "-" << atom->GetName()
+            // << " has label " << label << std::endl;
         }
 
         std::vector<std::string> template_atom_label_map;
@@ -773,10 +786,11 @@ void Assembly::MatchPdbAtoms2Glycam(std::map<Glycan::Oligosaccharide*, ResidueVe
                 label += "Side_";
             }
 
-            label                         += atom->GetElementSymbol();
+            label += atom->GetElementSymbol();
             // label += atom->DetermineChirality();
             template_atom_label_map.push_back(label);
-            //std::cout << "Template atom " << atom->GetResidue()->GetName() << "-" << atom->GetName() << " has label " << label << std::endl;
+            // std::cout << "Template atom " << atom->GetResidue()->GetName() << "-" << atom->GetName() << " has label "
+            // << label << std::endl;
         }
 
         Atom* target_start_atom            = target_atoms[0];
@@ -794,7 +808,7 @@ void Assembly::MatchPdbAtoms2Glycam(std::map<Glycan::Oligosaccharide*, ResidueVe
              template_it != template_atoms.end(); template_it++)
         {
             Atom* template_atom = *template_it;
-			int template_index = std::distance(template_atoms.begin(), template_it);
+            int template_index  = std::distance(template_atoms.begin(), template_it);
             int depth           = 0;
             if (local_debug > 0)
             {
@@ -803,9 +817,10 @@ void Assembly::MatchPdbAtoms2Glycam(std::map<Glycan::Oligosaccharide*, ResidueVe
                 gmml::log(__LINE__, __FILE__, gmml::INF, "Target atom is: " + target_start_atom->GetName());
                 gmml::log(__LINE__, __FILE__, gmml::INF, "About to run RecursiveMoleculeSubgraphMatching()");
             }
-            this->RecursiveMoleculeSubgraphMatching(
-                target_start_atom, target_atoms, 0, template_atom, template_atoms, template_index, target_atom_label_map, template_atom_label_map,
-                target_template_vertex_match, template_target_vertex_match, target_insertion_order, tracker, depth);
+            this->RecursiveMoleculeSubgraphMatching(target_start_atom, target_atoms, 0, template_atom, template_atoms,
+                                                    template_index, target_atom_label_map, template_atom_label_map,
+                                                    target_template_vertex_match, template_target_vertex_match,
+                                                    target_insertion_order, tracker, depth);
         }
     }
     return;
@@ -946,17 +961,17 @@ bool Assembly::IfMatchScenarioAlreadyExists(std::map<Atom*, Atom*>& target_templ
     return match_already_exists;
 }
 
-int Assembly::RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& target_atoms, int target_atom_index, 
-												Atom* template_atom, AtomVector& template_atoms, int template_atom_index,
-                                                std::vector<std::string>& target_atom_label_map,
-                                                std::vector<std::string>& template_atom_label_map,
-                                                std::vector<std::map<Atom*, Atom*>>& target_template_vertex_match,
-                                                std::vector<std::map<Atom*, Atom*>>& template_target_vertex_match,
-                                                std::vector<Atom*>& target_insertion_order,
-                                                Pdb2glycamMatchingTracker* pdb2glycam_matching_tracker,
-                                                int previous_call_depth)
+int Assembly::RecursiveMoleculeSubgraphMatching(
+    Atom* target_atom, AtomVector& target_atoms, int target_atom_index, Atom* template_atom, AtomVector& template_atoms,
+    int template_atom_index, std::vector<std::string>& target_atom_label_map,
+    std::vector<std::string>& template_atom_label_map,
+    std::vector<std::map<Atom*, Atom*>>& target_template_vertex_match,
+    std::vector<std::map<Atom*, Atom*>>& template_target_vertex_match, std::vector<Atom*>& target_insertion_order,
+    Pdb2glycamMatchingTracker* pdb2glycam_matching_tracker, int previous_call_depth)
 {
-	//std::cout << "Trying to match target atom " << target_atom->GetResidue()->GetName() << "-" << target_atom->GetName() << " and " << template_atom->GetResidue()->GetName() << "-" << template_atom->GetName() << std::endl;
+    // std::cout << "Trying to match target atom " << target_atom->GetResidue()->GetName() << "-" <<
+    // target_atom->GetName() << " and " << template_atom->GetResidue()->GetName() << "-" << template_atom->GetName() <<
+    // std::endl;
     // This function is intended to find multiple matches, but right now, only the 1st match is correct, the rest are
     // wrong.
 
@@ -1003,7 +1018,8 @@ int Assembly::RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& t
         {
             pdb2glycam_matching_tracker->all_isomorphisms.push_back(target_template_vertex_match[0]);
         }
-		//std::cout << "An isomorphism match is found upon " << target_atom->GetResidue()->GetName() << "-" << target_atom->GetName() << std::endl;
+        // std::cout << "An isomorphism match is found upon " << target_atom->GetResidue()->GetName() << "-" <<
+        // target_atom->GetName() << std::endl;
         return 4; // An isomorphism match is found.
     }
 
@@ -1013,11 +1029,15 @@ int Assembly::RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& t
     for (AtomVector::iterator target_it = target_atom_neighbors.begin(); target_it != target_atom_neighbors.end();
          target_it++)
     {
-		MolecularModeling::Atom* neighbor = *target_it;
-		if (std::find(target_atoms.begin(), target_atoms.end(), neighbor) == target_atoms.end()) continue;
+        MolecularModeling::Atom* neighbor = *target_it;
+        if (std::find(target_atoms.begin(), target_atoms.end(), neighbor) == target_atoms.end())
+        {
+            continue;
+        }
         if (!this->IfVertexAlreadyMatched(*target_it, target_template_vertex_match))
         {
-			//std::cout << "Found unmatched target neighbor " << (*target_it)->GetResidue()->GetName() << "-" << (*target_it)->GetName() << std::endl;
+            // std::cout << "Found unmatched target neighbor " << (*target_it)->GetResidue()->GetName() << "-" <<
+            // (*target_it)->GetName() << std::endl;
             unmatched_target_neighbors.push_back(*target_it);
         }
     }
@@ -1053,31 +1073,39 @@ int Assembly::RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& t
             pdb2glycam_matching_tracker->largest_iteration_length = this_call_depth;
         }
         return 3; // Current target vertex match, but downstream mismatch is impossible.
-        //return 5; // Current target vertex match, but downstream mismatch is impossible.
+        // return 5; // Current target vertex match, but downstream mismatch is impossible.
     }
 
     AtomVector matched_template_neighbors;
 
     for (unsigned int i = 0; i < unmatched_target_neighbors.size(); i++)
     {
-		MolecularModeling::Atom* unmatched = unmatched_target_neighbors[i];
-        AtomVector::iterator unmatched_it = std::find(target_atoms.begin(), target_atoms.end(), unmatched);
-        int unmatched_target_index = std::distance(target_atoms.begin(), unmatched_it);
+        MolecularModeling::Atom* unmatched = unmatched_target_neighbors[i];
+        AtomVector::iterator unmatched_it  = std::find(target_atoms.begin(), target_atoms.end(), unmatched);
+        int unmatched_target_index         = std::distance(target_atoms.begin(), unmatched_it);
 
-		for (unsigned int j = 0; j < unmatched_template_neighbors.size(); j++){
-			MolecularModeling::Atom* unmatched_template = unmatched_template_neighbors[j];	
-			AtomVector::iterator unmatched_template_it = std::find(template_atoms.begin(), template_atoms.end(), unmatched_template);
-        	int unmatched_template_index = std::distance(template_atoms.begin(), unmatched_template_it);
+        for (unsigned int j = 0; j < unmatched_template_neighbors.size(); j++)
+        {
+            MolecularModeling::Atom* unmatched_template = unmatched_template_neighbors[j];
+            AtomVector::iterator unmatched_template_it =
+                std::find(template_atoms.begin(), template_atoms.end(), unmatched_template);
+            int unmatched_template_index = std::distance(template_atoms.begin(), unmatched_template_it);
 
-            if (std::find(matched_template_neighbors.begin(), matched_template_neighbors.end(), unmatched_template) == matched_template_neighbors.end())
+            if (std::find(matched_template_neighbors.begin(), matched_template_neighbors.end(), unmatched_template) ==
+                matched_template_neighbors.end())
             {
-				//std::cout << "Descending into " << next_target_atom->GetResidue()->GetName() << "-" << next_target_atom->GetName() << " corresponding template: " << template_atom_to_match->GetResidue()->GetName() << "-" << template_atom_to_match->GetName() << std::endl;
+                // std::cout << "Descending into " << next_target_atom->GetResidue()->GetName() << "-" <<
+                // next_target_atom->GetName() << " corresponding template: " <<
+                // template_atom_to_match->GetResidue()->GetName() << "-" << template_atom_to_match->GetName() <<
+                // std::endl;
 
                 int downstream_match_status = this->RecursiveMoleculeSubgraphMatching(
-                    unmatched, target_atoms, unmatched_target_index, unmatched_template, template_atoms, unmatched_template_index, target_atom_label_map,
-                    template_atom_label_map, target_template_vertex_match, template_target_vertex_match,
-                    target_insertion_order, pdb2glycam_matching_tracker, this_call_depth);
-					//std::cout << "Done " << unmatched->GetResidue()->GetName() << "-" << unmatched->GetName() << " returned " << downstream_match_status << std::endl;
+                    unmatched, target_atoms, unmatched_target_index, unmatched_template, template_atoms,
+                    unmatched_template_index, target_atom_label_map, template_atom_label_map,
+                    target_template_vertex_match, template_target_vertex_match, target_insertion_order,
+                    pdb2glycam_matching_tracker, this_call_depth);
+                // std::cout << "Done " << unmatched->GetResidue()->GetName() << "-" << unmatched->GetName() << "
+                // returned " << downstream_match_status << std::endl;
 
                 if (downstream_match_status == 4 || downstream_match_status == 5 || downstream_match_status == 0)
                 {
@@ -1105,14 +1133,15 @@ int Assembly::RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& t
                                                       template_target_vertex_match, target_insertion_order);
                     }
 
-					if (downstream_match_status == 4 || downstream_match_status == 5){
-                    	matched_template_neighbors.push_back(unmatched_template);
-					}
+                    if (downstream_match_status == 4 || downstream_match_status == 5)
+                    {
+                        matched_template_neighbors.push_back(unmatched_template);
+                    }
                 }
             }
 
         } // for each unmatched template
-    } // for1
+    }     // for1
 
     if (downstream_matches_count > 0)
     {
@@ -1145,7 +1174,7 @@ int Assembly::RecursiveMoleculeSubgraphMatching(Atom* target_atom, AtomVector& t
         pdb2glycam_matching_tracker->largest_iteration_length = this_call_depth;
     }
     return 3; // Return upon downstream mismatch, but this target vertex itself matches.
-	//return 5;
+              // return 5;
 }
 
 bool Assembly::CheckAndAcceptMatches(MolecularModeling::AtomVector& target_atoms,
@@ -1182,8 +1211,8 @@ bool Assembly::CheckAndAcceptMatches(MolecularModeling::AtomVector& target_atoms
     return matches_accepted;
 }
 
-bool Assembly::AllAtomEdgesMatch(Atom* target_atom, AtomVector& target_atoms, Atom* template_atom, AtomVector& template_atoms,
-                                 std::vector<std::string>& target_atom_label_map,
+bool Assembly::AllAtomEdgesMatch(Atom* target_atom, AtomVector& target_atoms, Atom* template_atom,
+                                 AtomVector& template_atoms, std::vector<std::string>& target_atom_label_map,
                                  std::vector<std::string>& template_atom_label_map)
 {
     bool all_edges_match          = true;
@@ -1201,20 +1230,21 @@ bool Assembly::AllAtomEdgesMatch(Atom* target_atom, AtomVector& target_atoms, At
     for (AtomVector::iterator target_edge_it = all_target_edges.begin(); target_edge_it != all_target_edges.end();
          target_edge_it++)
     {
-        Atom* target_edge = *target_edge_it;
-		AtomVector::iterator this_target_it = std::find(target_atoms.begin(), target_atoms.end(), target_edge);
-		int this_target_index = std::distance(target_atoms.begin(), this_target_it);
-        bool match_found  = false;
+        Atom* target_edge                   = *target_edge_it;
+        AtomVector::iterator this_target_it = std::find(target_atoms.begin(), target_atoms.end(), target_edge);
+        int this_target_index               = std::distance(target_atoms.begin(), this_target_it);
+        bool match_found                    = false;
         AtomVector matched_edges;
 
         for (AtomVector::iterator template_edge_it = all_template_edges.begin();
              template_edge_it != all_template_edges.end(); template_edge_it++)
         {
-            Atom* template_edge = *template_edge_it;
-			AtomVector::iterator this_edge_it = std::find(template_atoms.begin(), template_atoms.end(), template_edge);
-			int this_template_index = std::distance(template_atoms.begin(), this_edge_it);
+            Atom* template_edge               = *template_edge_it;
+            AtomVector::iterator this_edge_it = std::find(template_atoms.begin(), template_atoms.end(), template_edge);
+            int this_template_index           = std::distance(template_atoms.begin(), this_edge_it);
 
-            if (this->AtomVertexMatch(this_target_index, this_template_index, target_atom_label_map, template_atom_label_map) &&
+            if (this->AtomVertexMatch(this_target_index, this_template_index, target_atom_label_map,
+                                      template_atom_label_map) &&
                 std::find(matched_edges.begin(), matched_edges.end(), template_edge) == matched_edges.end())
             {
 
@@ -1240,7 +1270,8 @@ bool Assembly::AtomVertexMatch(int target_atom_index, int template_atom_index,
                                std::vector<std::string>& target_atom_label_map,
                                std::vector<std::string>& template_atom_label_map)
 {
-	//std::cout << "Target vs template label: " << target_atom_label_map[target_atom_index] << " vs " << template_atom_label_map[template_atom_index] << std::endl;
+    // std::cout << "Target vs template label: " << target_atom_label_map[target_atom_index] << " vs " <<
+    // template_atom_label_map[template_atom_index] << std::endl;
     if (target_atom_label_map[target_atom_index] == template_atom_label_map[template_atom_index])
     {
         return true;
